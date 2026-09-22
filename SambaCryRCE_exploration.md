@@ -1,9 +1,13 @@
 # Objective of this project
 -Understand how SambaCry worked, and the threat it posed.
 
--Learn about the harmful nature of RCEs
+-Learn about the harmful nature of RCEs.
 
--Attempt to exfiltrate data on the target system
+-Attempt to exfiltrate data on the target system.
+
+-Demonstrate skills such as target enumeration, vulnerability exploitation, scripting capabilities, ability to use various tools and resources to achieve my objective.
+
+-Perform password/hash cracking functions.
 
 # Processes
 
@@ -75,11 +79,16 @@ Now going back to the command shell session established by the exploit. Here I s
 
 <img width="528" height="68" alt="22PerformingDataExfil" src="https://github.com/user-attachments/assets/bb901d45-c9ef-452a-9f87-2db794c7e287" />
 
-Then back to the command shell that the listener was active on, here I can observe that the target and my attacker system connected,
+After exfiltrating the data, I needed to clean up and erase my activity, so I proceeded to deleted the files that I created while gathering and archiving the target's data. I deleted the Data.tar file and the targetData directory. The last thing I did was shred the logs on the target's system, this helps hide my presence and activity. The I exited the Command shell session.
+
+<img width="429" height="225" alt="cleanUpAndExit" src="https://github.com/user-attachments/assets/f8a82418-ccfe-463c-8772-2b444e57a38d" />
+
+
+Then back to the command shell that the listener was active on, here I can observe that the target and my attacker system connected.
 
 <img width="575" height="111" alt="23AfterPerformingDataexfil" src="https://github.com/user-attachments/assets/0b217ce4-ddd4-4814-8596-4884252e0e37" />
 
-From there, I navigated to the /tmp directory, performed a listing to observe if the targetData.data file was there, then I proceeded to convert any data within the file to an ASCII format, used base64 to decode the data, and redirected the output to a targetData.tar file.
+From there, I navigated to the /tmp directory, performed a listing to observe if the targetData.data file was there, then I proceeded to convert any data within the file to an ASCII format, used base64 to decode the data, and redirected the output to a targetData.tar file. 
 
 <img width="48%" height="418" alt="24NavigatingtoTMP" src="https://github.com/user-attachments/assets/b6c727a6-cb88-4c58-b294-d990441ec4a5" /> <img width="48&" height="277" alt="25ObservingCreationOfTheTarFile" src="https://github.com/user-attachments/assets/1f74c9d2-e436-47f4-9185-088e3f7798f5" />
 
@@ -97,13 +106,20 @@ Now getting into the testingHashses.txt file. The file was setup to emulate the 
 <img width="703" height="326" alt="28observeTargetHashes" src="https://github.com/user-attachments/assets/009b4bb2-a242-46e8-96ce-2d5e62880fa0" />
 
 
-Back in my FTP project, I had demonstrated what is essentially an online password attack, which required bruteforcing passwords by entering them on what would be a log-in form, or in my case bruteforcing  a log-in session. Now in this instance, I have gained access to a system, and I was able to retrieve a file that houses hash value data, I don't need need to try an online attack password if I want access to the system.
+Back in my FTP project, I had demonstrated what is essentially an online password attack, which required bruteforcing passwords by entering them on what would be a log-in form, or in my case bruteforcing a log-in session. Now in this instance, I have gained access to a system, and I was able to retrieve a file that houses password hashes for different users, I don't need need to try an online attack password if I want access to the system.
 
-Online password attacks tend to take up more resources, and as observed in the FTP project, they can be mitigated by using rate-limiting, how many times a password can be inputted.
+Online password attacks tend to take up more resources, and as observed in the FTP project, they can be mitigated by using rate-limiting and account lockouts.
 
-Now that I have retrieved the hash file from the victim system, it allows me to view usernames, and their hash values. More importantly, I can now perform offline password attacks, I can use fewer resources, and I don't have to worry about my IP address being blocked because of a bruteforce pattern was detected. 
+Now that I have retrieved the hash file from the victim system, it allows me to view usernames, and their hash values. More importantly, I can now perform offline password attacks, I don't have to worry about my IP address being blocked because I triggered a security application on the target. 
 
+So, I copied the hashes in the retrieved testingHashes.txt file, into another file, and then I proceeded to use John the Ripper, a password cracking tool, to try and crack the hashes within the file. I supplied John with a wordlist and the file that contained the copied hashes.
 
+<img width="48%" height="267" alt="copyHashes" src="https://github.com/user-attachments/assets/3a091078-eae5-4718-8607-16d6cde63f35" /> <img width="48%" height="325" alt="tryingJackTR" src="https://github.com/user-attachments/assets/9d1d6069-beb6-45d1-b061-d2b03b735831" />
 
+While John was running and trying various hashing algorithms to crack the hashes, I created a hash cracker script. I used some simple hashing algorithms, purely for demonstration. The program would observe a hash's length and based on that, it would try to use a hashing algorithm that typically outputs hashes of that length. If a hash of an unknown length was detected, it would simply print that an unknown hash was detected. Then I supplied it with a small wordlist to try and hash each word, and if the hash value of the word in the wordlist matched the detected hash value from the target's hash file, then that word would be the password that was used for the user in the hash file.
 
+<img width="842" height="469" alt="29simpleHashCracker" src="https://github.com/user-attachments/assets/a58abec5-e760-4af7-8219-8e49b9481123" />
 
+Then, I executed the script, and supplied it with the file that contained the hashes(testingHashes.txt). The script was able to detect two unknown hashes, and it failed to find a match for one of the hashes. This would most likely be because the word was not in the wordlist that I supplied, so even if the hash length was a match for one of the algorithms, without a word that outputs the same hash,noting can be done. However, other hash values had a match, the script outputted the words that were a match for certain hashes, the hash value that was compared, and the hashing algorithm.
+
+<img width="691" height="405" alt="30RunningTheHashCracker" src="https://github.com/user-attachments/assets/bc71c985-2eb8-4f23-93c3-81da32c67b65" />
